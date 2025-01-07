@@ -21,8 +21,8 @@ export class AuthService {
     return this.configService.get<string>('JWT_SECRET');
   }
 
-  async signin(body: SignInDto): Promise<{ token: string }> {
-    const { login } = body;
+  async signin(body: SignInDto): Promise<any> {
+    const { login, password } = body;
     const user = await this.userModel.findOne({
       $or: [{ login: login }, { email: login }],
     });
@@ -31,17 +31,28 @@ export class AuthService {
       throw new Error('User not found');
     }
 
-    const { password } = body;
+    const { _id } = user;
+    const sub = _id.toString();
+
     const arePasswordsMatches = await verify(user.password, password);
 
     if (user && arePasswordsMatches) {
-      const payload = { sub: user._id, login: login };
-      return {
-        token: await this.jwtService.signAsync(payload),
-      };
+      return this.signToken(sub, user.login);
     }
 
     throw new UnauthorizedException();
+  }
+
+  async signToken(
+    userId: string,
+    email: string,
+  ): Promise<{ access_token: string }> {
+    const payload = { sub: userId, userName: email };
+    const access_token = await this.jwtService.signAsync(payload, {
+      expiresIn: '15m',
+      secret: this.configService.get<string>('JWT_SECRET'),
+    });
+    return { access_token };
   }
 
   async signup(body: SignUpDto) {
@@ -53,8 +64,8 @@ export class AuthService {
         password: hashedPassword,
       });
       await newUser.save();
-      const { password, ...rest } = newUser;
-      return rest;
+      const sub = newUser._id.toString();
+      return this.signToken(sub, newUser.login);
     } catch (error) {
       if (error instanceof MongooseError) {
         console.log(error.message);
