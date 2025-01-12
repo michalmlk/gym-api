@@ -21,6 +21,7 @@ export class CreateExerciseDto {
   @IsNotEmpty()
   name: string;
 
+  @IsString()
   @IsNotEmpty()
   description: string;
 
