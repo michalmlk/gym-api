@@ -11,9 +11,8 @@ import {
 import { WorkoutsService } from './workouts.service';
 import { CreateWorkoutDto, UpdateWorkoutDto } from './dto';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
-// import { UpdatePlanDto } from './dto/update-plan.dto';
 
-@Controller('plans')
+@Controller('workouts')
 export class WorkoutsController {
   constructor(private readonly workoutsService: WorkoutsService) {}
 
@@ -23,7 +22,7 @@ export class WorkoutsController {
     return this.workoutsService.create(createWorkoutDto);
   }
 
-  @Get('all-plans')
+  @Get('all')
   findAll() {
     return this.workoutsService.findAll();
   }
