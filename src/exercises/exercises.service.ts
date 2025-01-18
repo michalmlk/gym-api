@@ -29,7 +29,7 @@ export class ExercisesService {
     return this.exerciseModel.findByIdAndUpdate(id, updateExerciseDto);
   }
 
-  remove(id: string) {
+  delete(id: string) {
     return this.exerciseModel.findByIdAndDelete(id);
   }
 }
